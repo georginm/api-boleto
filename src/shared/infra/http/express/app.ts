@@ -1,7 +1,7 @@
 import express from 'express';
-
 import 'express-async-errors';
-import 'dotenv/config';
+
+import '../../../containers';
 import handleErrors from './middleware/handleErrors';
 
 const app = express();
