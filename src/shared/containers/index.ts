@@ -1,8 +1,5 @@
-import { TitleInvoiceUseCase } from 'modules/invoices/useCases/titleInvoiceUseCase/Implementation/TitleInvoiceUseCase';
-import { ITitleInvoiceUseCase } from 'modules/invoices/useCases/titleInvoiceUseCase/ITitleInvoiceUseCase';
+import { TitleUseCase } from 'modules/invoices/useCases/titleInvoiceUseCase/Implementation/TitleUseCase';
+import { ITitleUseCase } from 'modules/invoices/useCases/titleInvoiceUseCase/ITitleUseCase';
 import { container } from 'tsyringe';
 
-container.registerSingleton<ITitleInvoiceUseCase>(
-  'TitleInvoiceUseCase',
-  TitleInvoiceUseCase
-);
+container.registerSingleton<ITitleUseCase>('TitleUseCase', TitleUseCase);

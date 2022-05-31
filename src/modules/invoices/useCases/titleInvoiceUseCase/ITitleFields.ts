@@ -2,21 +2,21 @@ interface IFirstField {
   if: string;
   currencyCode: string;
   freeField20x24: string;
-  firstVerificationDigit: string;
+  firstVD: string;
 }
 
 interface ISecondField {
   freeField25x34: string;
-  secondVerificationDigit: string;
+  secondVD: string;
 }
 
 interface IThirdField {
   freeField35x44: string;
-  thirdVerificationDigit: string;
+  thirdVD: string;
 }
 
 interface IFourthField {
-  barCodeVerificationDigit: string;
+  barCodeVD: string;
 }
 
 interface IFifthField {
@@ -24,7 +24,7 @@ interface IFifthField {
   amount: string;
 }
 
-interface ITitleInvoiceFields {
+interface ITitleFields {
   firstField: IFirstField;
   secondField: ISecondField;
   thirdField: IThirdField;
@@ -32,11 +32,4 @@ interface ITitleInvoiceFields {
   fifthField: IFifthField;
 }
 
-export {
-  ITitleInvoiceFields,
-  IFirstField,
-  ISecondField,
-  IThirdField,
-  IFourthField,
-  IFifthField,
-};
+export { ITitleFields, IFirstField, ISecondField, IThirdField, IFourthField, IFifthField };

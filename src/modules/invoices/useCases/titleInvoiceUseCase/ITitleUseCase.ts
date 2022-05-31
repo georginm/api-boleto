@@ -1,7 +1,7 @@
 import { IInvoiceDTO } from '../../dto/IInvoiceDTO';
 
-interface ITitleInvoiceUseCase {
+interface ITitleUseCase {
   handleTitleInvoice(digitableLine: string): IInvoiceDTO;
 }
 
-export { ITitleInvoiceUseCase };
+export { ITitleUseCase };
