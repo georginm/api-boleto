@@ -2,11 +2,11 @@ import { IInvoiceDTO } from 'modules/invoices/dto/IInvoiceDTO';
 import { BadRequestError } from 'shared/errors/BadRequestError';
 
 import {
-  IFifthTitleField,
-  IFirstTitleField,
-  IFourthTitleField,
-  ISecondTitleField,
-  IThirdTitleField,
+  IFifthField,
+  IFirstField,
+  IFourthField,
+  ISecondField,
+  IThirdField,
   ITitleInvoiceFields,
 } from '../ITitleInvoiceFields';
 import { ITitleInvoiceUseCase } from '../ITitleInvoiceUseCase';
@@ -17,49 +17,34 @@ class TitleInvoiceUseCase implements ITitleInvoiceUseCase {
       throw new BadRequestError('O código digitado não é válido');
     }
 
-    const {
-      firstTitleField,
-      secondTitleField,
-      thirdTitleField,
-      fourthTitleField,
-      fifthTitleField,
-    } = this.breakFieldsDigitableLine(digitableLine);
+    const { firstField, secondField, thirdField, fourthField, fifthField } =
+      this.breakFields(digitableLine);
 
-    const barCodeDigit = this.verifyVerificationDigitBarcode(digitableLine);
-
-    if (barCodeDigit !== parseInt(fourthTitleField.barCodeVerificationDigit, 10)) {
+    const barCodeDigit = this.verificationDigitBarcode(digitableLine);
+    if (barCodeDigit !== parseInt(fourthField.barCodeVerificationDigit, 10)) {
       throw new BadRequestError('O código digitado não é válido');
     }
 
-    const firstVerificationDigit = this.verifyVerificationDigit(
-      firstTitleField.if + firstTitleField.currencyCode + firstTitleField.freeField20x24
+    const firstVerificationDigit = this.verificationDigit(
+      firstField.if + firstField.currencyCode + firstField.freeField20x24
     );
-
-    if (firstVerificationDigit !== parseInt(firstTitleField.firstVerificationDigit, 10)) {
+    if (firstVerificationDigit !== parseInt(firstField.firstVerificationDigit, 10)) {
       throw new BadRequestError('O código digitado não é válido');
     }
 
-    const secondVerificationDigit = this.verifyVerificationDigit(
-      secondTitleField.freeField25x34
-    );
-
-    if (
-      secondVerificationDigit !== parseInt(secondTitleField.secondVerificationDigit, 10)
-    ) {
+    const secondVerificationDigit = this.verificationDigit(secondField.freeField25x34);
+    if (secondVerificationDigit !== parseInt(secondField.secondVerificationDigit, 10)) {
       throw new BadRequestError('O código digitado não é válido');
     }
 
-    const thirdVerificationDigit = this.verifyVerificationDigit(
-      thirdTitleField.freeField35x44
-    );
-
-    if (thirdVerificationDigit !== parseInt(thirdTitleField.thirdVerificationDigit, 10)) {
+    const thirdVerificationDigit = this.verificationDigit(thirdField.freeField35x44);
+    if (thirdVerificationDigit !== parseInt(thirdField.thirdVerificationDigit, 10)) {
       throw new BadRequestError('O código digitado não é válido');
     }
 
-    const expirationDate = this.getExpirationDate(fifthTitleField.expirationFactor);
+    const expirationDate = this.getExpirationDate(fifthField.expirationFactor);
     const barCode = this.constructBarCode(digitableLine);
-    const amount = this.getAmount(fifthTitleField.amount);
+    const amount = this.getAmount(fifthField.amount);
 
     return {
       amount,
@@ -68,45 +53,45 @@ class TitleInvoiceUseCase implements ITitleInvoiceUseCase {
     } as IInvoiceDTO;
   }
 
-  private breakFieldsDigitableLine(digitableLine: string): ITitleInvoiceFields {
-    const firstTitleField: IFirstTitleField = {
+  private breakFields(digitableLine: string): ITitleInvoiceFields {
+    const firstField: IFirstField = {
       if: digitableLine.substring(0, 3),
       currencyCode: digitableLine[3],
       freeField20x24: digitableLine.substring(4, 9),
       firstVerificationDigit: digitableLine[9],
     };
 
-    const secondTitleField: ISecondTitleField = {
+    const secondField: ISecondField = {
       freeField25x34: digitableLine.substring(10, 20),
       secondVerificationDigit: digitableLine[20],
     };
 
-    const thirdTitleField: IThirdTitleField = {
+    const thirdField: IThirdField = {
       freeField35x44: digitableLine.substring(21, 31),
       thirdVerificationDigit: digitableLine[31],
     };
 
-    const fourthTitleField: IFourthTitleField = {
+    const fourthField: IFourthField = {
       barCodeVerificationDigit: digitableLine[32],
     };
 
-    const fifthTitleField: IFifthTitleField = {
+    const fifthField: IFifthField = {
       expirationFactor: digitableLine.substring(33, 37),
       amount: digitableLine.substring(37, 47),
     };
 
     const invoiceFields = {
-      firstTitleField,
-      secondTitleField,
-      thirdTitleField,
-      fourthTitleField,
-      fifthTitleField,
+      firstField,
+      secondField,
+      thirdField,
+      fourthField,
+      fifthField,
     } as ITitleInvoiceFields;
 
     return invoiceFields;
   }
 
-  private verifyVerificationDigit(field: string): number {
+  private verificationDigit(field: string): number {
     const digits = field.split('').reverse();
 
     const sumDigits = digits.reduce((sum, element, index) => {
@@ -124,7 +109,7 @@ class TitleInvoiceUseCase implements ITitleInvoiceUseCase {
     return verificationDigit === 10 ? 0 : verificationDigit;
   }
 
-  private verifyVerificationDigitBarcode(digitableLine: string): number {
+  private verificationDigitBarcode(digitableLine: string): number {
     const multipliers = [2, 3, 4, 5, 6, 7, 8, 9];
 
     const barCode = this.constructBarCode(digitableLine).split('').reverse();
@@ -146,28 +131,24 @@ class TitleInvoiceUseCase implements ITitleInvoiceUseCase {
   }
 
   private constructBarCode(digitableLine: string): string {
-    const {
-      fifthTitleField,
-      firstTitleField,
-      fourthTitleField,
-      secondTitleField,
-      thirdTitleField,
-    } = this.breakFieldsDigitableLine(digitableLine);
+    const { fifthField, firstField, fourthField, secondField, thirdField } =
+      this.breakFields(digitableLine);
 
-    const barCode = firstTitleField.if
-      .concat(firstTitleField.currencyCode)
-      .concat(fourthTitleField.barCodeVerificationDigit)
-      .concat(fifthTitleField.expirationFactor)
-      .concat(fifthTitleField.amount)
-      .concat(firstTitleField.freeField20x24)
-      .concat(secondTitleField.freeField25x34)
-      .concat(thirdTitleField.freeField35x44);
+    const barCode =
+      firstField.if +
+      firstField.currencyCode +
+      fourthField.barCodeVerificationDigit +
+      fifthField.expirationFactor +
+      fifthField.amount +
+      firstField.freeField20x24 +
+      secondField.freeField25x34 +
+      thirdField.freeField35x44;
 
     return barCode;
   }
 
   private getExpirationDate(expirationFactor: string): string {
-    if (parseInt(expirationFactor, 10) === 0) return 'Barcode has no expiration date';
+    if (parseInt(expirationFactor, 10) === 0) return 'Code has no expiration date';
 
     const date = new Date('1997-10-07');
 
@@ -177,7 +158,7 @@ class TitleInvoiceUseCase implements ITitleInvoiceUseCase {
   }
 
   private getAmount(digits: string): string {
-    if (parseFloat(digits) === 0) return 'Barcode has no amount';
+    if (parseFloat(digits) === 0) return 'Code has no amount';
     return `${parseFloat(digits) / 100}`;
   }
 }

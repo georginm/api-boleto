@@ -1,42 +1,42 @@
-interface IFirstTitleField {
+interface IFirstField {
   if: string;
   currencyCode: string;
   freeField20x24: string;
   firstVerificationDigit: string;
 }
 
-interface ISecondTitleField {
+interface ISecondField {
   freeField25x34: string;
   secondVerificationDigit: string;
 }
 
-interface IThirdTitleField {
+interface IThirdField {
   freeField35x44: string;
   thirdVerificationDigit: string;
 }
 
-interface IFourthTitleField {
+interface IFourthField {
   barCodeVerificationDigit: string;
 }
 
-interface IFifthTitleField {
+interface IFifthField {
   expirationFactor: string;
   amount: string;
 }
 
 interface ITitleInvoiceFields {
-  firstTitleField: IFirstTitleField;
-  secondTitleField: ISecondTitleField;
-  thirdTitleField: IThirdTitleField;
-  fourthTitleField: IFourthTitleField;
-  fifthTitleField: IFifthTitleField;
+  firstField: IFirstField;
+  secondField: ISecondField;
+  thirdField: IThirdField;
+  fourthField: IFourthField;
+  fifthField: IFifthField;
 }
 
 export {
   ITitleInvoiceFields,
-  IFirstTitleField,
-  ISecondTitleField,
-  IThirdTitleField,
-  IFourthTitleField,
-  IFifthTitleField,
+  IFirstField,
+  ISecondField,
+  IThirdField,
+  IFourthField,
+  IFifthField,
 };
