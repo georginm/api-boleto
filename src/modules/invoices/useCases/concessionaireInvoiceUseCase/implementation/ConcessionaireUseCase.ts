@@ -96,9 +96,9 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
 
     const vd = digitableLine[3];
 
-    if (digitableLine[3] === '6' || digitableLine[3] === '7') {
+    if (digitableLine[2] === '6' || digitableLine[2] === '7') {
       this.verifyWithModuleOf10(vdRemoved, vd);
-    } else if (digitableLine[3] === '8' || digitableLine[3] === '9') {
+    } else if (digitableLine[2] === '8' || digitableLine[2] === '9') {
       this.verifyWithModuleOf11(vdRemoved, vd);
     } else {
       throw new BadRequestError('O código digitado não é válido');
