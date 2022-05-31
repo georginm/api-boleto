@@ -14,12 +14,14 @@ import { ITitleUseCase } from '../ITitleUseCase';
 
 class TitleUseCase implements ITitleUseCase {
   handleTitleInvoice(digitableLine: string): IInvoiceDTO {
-    if (digitableLine[32] === '0') {
-      throw new BadRequestError('O código digitado não é válido');
-    }
-
     const { firstField, secondField, thirdField, fourthField, fifthField } =
       this.breakFields(digitableLine);
+
+    if (fourthField.barCodeVD === '0') {
+      throw new BadRequestError(
+        'O digito de verificação do código de barras não pode ser zero'
+      );
+    }
 
     this.barCodeVerificationDigit(digitableLine);
 
@@ -86,7 +88,7 @@ class TitleUseCase implements ITitleUseCase {
     const module = moduleOf11(barCode);
 
     if (module !== parseInt(vd[0], 10)) {
-      throw new BadRequestError('O código digitado não é válido');
+      throw new BadRequestError('Falha ao validar o código de barras');
     }
   }
 
@@ -95,7 +97,7 @@ class TitleUseCase implements ITitleUseCase {
     const module = moduleOf10(digits);
 
     if (module !== parseInt(vd, 10)) {
-      throw new BadRequestError('O código digitado não é válido');
+      throw new BadRequestError('Falha ao validar um dos dígitos de verificação dos campos');
     }
   }
 

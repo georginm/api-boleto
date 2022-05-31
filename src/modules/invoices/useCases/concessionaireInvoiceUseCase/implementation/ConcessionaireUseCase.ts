@@ -15,8 +15,16 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
   handleConcessionaireInvoice(digitableLine: string): IInvoiceDTO {
     const { firstField, secondField, thirdField } = this.breakFields(digitableLine);
 
-    if (firstField.product !== '8' || firstField.segment === '8') {
-      throw new BadRequestError('O código digitado não é válido');
+    if (firstField.product !== '8') {
+      throw new BadRequestError('O código do produto informado é inválido');
+    }
+
+    if (firstField.segment === '8') {
+      throw new BadRequestError('O código de segmento informado é inválido');
+    }
+
+    if (parseInt(firstField.realValue, 10) > 9 || parseInt(firstField.realValue, 10) < 6) {
+      throw new BadRequestError('Falha ao validar digito do valor efetivo/referência');
     }
 
     this.verificationDigit(digitableLine);
@@ -100,8 +108,6 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
       this.verifyWithModuleOf10(vdRemoved, vd);
     } else if (digitableLine[2] === '8' || digitableLine[2] === '9') {
       this.verifyWithModuleOf11(vdRemoved, vd);
-    } else {
-      throw new BadRequestError('O código digitado não é válido');
     }
   }
 
@@ -147,8 +153,6 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
 
       this.verifyWithModuleOf11(thirdField.freeField23x33, thirdField.thirdVD);
       this.verifyWithModuleOf11(fourthField.freeField34x44, fourthField.fourthVD);
-    } else {
-      throw new BadRequestError('O código digitado não é válido');
     }
   }
 
@@ -156,8 +160,14 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     const digits = field.split('').reverse();
     const module = moduleOf10(digits);
 
+    if (`${module}` !== vd && field.length > 11) {
+      throw new BadRequestError(
+        'Falha ao validar o digito de verificação do código de barras'
+      );
+    }
+
     if (`${module}` !== vd) {
-      throw new BadRequestError('O código digitado não é válido');
+      throw new BadRequestError('Falha ao validar o digito de verificação de um dos campos');
     }
   }
 
@@ -165,8 +175,14 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     const digits = field.split('').reverse();
     const module = moduleOf11(digits);
 
+    if (`${module}` !== vd && field.length > 11) {
+      throw new BadRequestError(
+        'Falha ao validar o digito de verificação do código de barras'
+      );
+    }
+
     if (`${module}` !== vd) {
-      throw new BadRequestError('O código digitado não é válido');
+      throw new BadRequestError('Falha ao validar o digito de verificação de um dos campos');
     }
   }
 

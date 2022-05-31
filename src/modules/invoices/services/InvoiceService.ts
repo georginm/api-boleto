@@ -17,7 +17,8 @@ class InvoiceService {
   ) {}
 
   execute(digitableLine: string): IInvoiceDTO {
-    if (!isNumeric(digitableLine)) throw new BadRequestError('O código digitado não é válido');
+    if (!isNumeric(digitableLine))
+      throw new BadRequestError('O código digitado só deve conter letras');
 
     if (digitableLine.length === 47) {
       return this.titleUseCases.handleTitleInvoice(digitableLine);
