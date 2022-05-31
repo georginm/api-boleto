@@ -23,6 +23,14 @@ class TitleUseCase implements ITitleUseCase {
       );
     }
 
+    // if (firstField.if !== '001') {
+    //   throw new BadRequestError('Código do banco inválido');
+    // }
+
+    // if (firstField.currencyCode !== '9') {
+    //   throw new BadRequestError('Código da moeda inválido');
+    // }
+
     this.barCodeVerificationDigit(digitableLine);
 
     this.verificationDigit(
