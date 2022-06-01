@@ -1,6 +1,6 @@
 import { IConcessionaireUseCase } from 'modules/invoices/useCases/concessionaireInvoiceUseCase/IConcessionaireUseCase';
 import { ConcessionaireUseCase } from 'modules/invoices/useCases/concessionaireInvoiceUseCase/implementation/ConcessionaireUseCase';
-import { TitleUseCase } from 'modules/invoices/useCases/titleInvoiceUseCase/Implementation/TitleUseCase';
+import { TitleUseCase } from 'modules/invoices/useCases/titleInvoiceUseCase/implementation/TitleUseCase';
 import { ITitleUseCase } from 'modules/invoices/useCases/titleInvoiceUseCase/ITitleUseCase';
 import { container } from 'tsyringe';
 

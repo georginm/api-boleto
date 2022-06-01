@@ -18,9 +18,7 @@ class TitleUseCase implements ITitleUseCase {
       this.breakFields(digitableLine);
 
     if (fourthField.barCodeVD === '0') {
-      throw new BadRequestError(
-        'O digito de verificação do código de barras não pode ser zero'
-      );
+      throw new BadRequestError('teste');
     }
 
     // if (firstField.if !== '001') {
