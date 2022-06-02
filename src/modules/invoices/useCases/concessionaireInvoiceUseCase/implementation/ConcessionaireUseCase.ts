@@ -1,6 +1,6 @@
-import { IInvoiceDTO } from 'modules/invoices/dto/IInvoiceDTO';
-import { moduleOf10, moduleOf11 } from 'modules/invoices/helpers/InvoiceHelpers';
-import { BadRequestError } from 'shared/errors/BadRequestError';
+import { IInvoiceDTO } from '@modules/invoices/dto/IInvoiceDTO';
+import { isNumeric, moduleOf10, moduleOf11 } from '@modules/invoices/helpers/InvoiceHelpers';
+import { BadRequestError } from '@shared/errors/BadRequestError';
 
 import {
   IConcessionaireFields,
@@ -13,6 +13,9 @@ import { IConcessionaireUseCase } from '../IConcessionaireUseCase';
 
 class ConcessionaireUseCase implements IConcessionaireUseCase {
   handleConcessionaireInvoice(digitableLine: string): IInvoiceDTO {
+    if (!isNumeric(digitableLine))
+      throw new BadRequestError('O código digitado só deve conter números');
+
     const { firstField, secondField, thirdField } = this.breakFields(digitableLine);
 
     if (firstField.product !== '8') {
@@ -28,7 +31,6 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     }
 
     this.verificationDigit(digitableLine);
-
     this.barCodeVerificationDigit(digitableLine);
 
     let expirationDate: string;
@@ -52,7 +54,7 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     } as IInvoiceDTO;
   }
 
-  private breakFields(digitableLine: string): IConcessionaireFields {
+  breakFields(digitableLine: string): IConcessionaireFields {
     const firstField: IFirstField = {
       product: digitableLine[0],
       segment: digitableLine[1],
@@ -89,7 +91,7 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     return concessionaire;
   }
 
-  private constructBarCode(digitableLine: string): string {
+  constructBarCode(digitableLine: string): string {
     return (
       digitableLine.substring(0, 11) +
       digitableLine.substring(12, 23) +
@@ -98,7 +100,7 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     );
   }
 
-  private barCodeVerificationDigit(digitableLine: string): void {
+  barCodeVerificationDigit(digitableLine: string): void {
     const barCode = this.constructBarCode(digitableLine);
     const vdRemoved = barCode.substring(0, 3) + barCode.substring(4);
 
@@ -111,7 +113,7 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     }
   }
 
-  private verificationDigit(digitableLine: string): void {
+  verificationDigit(digitableLine: string): void {
     const { firstField, secondField, thirdField, fourthField } =
       this.breakFields(digitableLine);
 
@@ -156,14 +158,12 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     }
   }
 
-  private verifyWithModuleOf10(field: string, vd: string): void {
+  verifyWithModuleOf10(field: string, vd: string): void {
     const digits = field.split('').reverse();
     const module = moduleOf10(digits);
 
     if (`${module}` !== vd && field.length > 11) {
-      throw new BadRequestError(
-        'Falha ao validar o digito de verificação do código de barras'
-      );
+      throw new BadRequestError('Falha ao validar o DV do código de barras');
     }
 
     if (`${module}` !== vd) {
@@ -171,14 +171,12 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     }
   }
 
-  private verifyWithModuleOf11(field: string, vd: string): void {
+  verifyWithModuleOf11(field: string, vd: string): void {
     const digits = field.split('').reverse();
     const module = moduleOf11(digits);
 
     if (`${module}` !== vd && field.length > 11) {
-      throw new BadRequestError(
-        'Falha ao validar o digito de verificação do código de barras'
-      );
+      throw new BadRequestError('Falha ao validar o DV do código de barras');
     }
 
     if (`${module}` !== vd) {
@@ -186,7 +184,7 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     }
   }
 
-  private getAmount(amount: string): string {
+  getAmount(amount: string): string {
     if (parseFloat(amount) === 0) {
       return 'O código de barras não tem valor definido';
     }
@@ -194,14 +192,15 @@ class ConcessionaireUseCase implements IConcessionaireUseCase {
     return `${parseFloat(amount) / 100}`;
   }
 
-  private getExpirationDate(fields: string): string {
+  getExpirationDate(fields: string): string {
     if (parseInt(fields, 10) === 0) return 'O código de barras não tem data de vencimento';
 
     // eslint-disable-next-line prettier/prettier
     const date = `${fields.substring(0, 4)}-${fields.substring(4, 6)}-${fields.substring(6,8)}`;
 
     try {
-      new Date(date).toISOString();
+      const checkData = new Date(date).toISOString();
+      if (!checkData.startsWith(date)) return 'O código de barras não tem data de vencimento';
     } catch (error) {
       return 'O código de barras não tem data de vencimento';
     }

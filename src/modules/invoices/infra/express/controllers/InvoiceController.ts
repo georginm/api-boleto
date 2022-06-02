@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { InvoiceService } from 'modules/invoices/services/InvoiceService';
 import { container } from 'tsyringe';
+
+import { InvoiceService } from '@modules/invoices/services/InvoiceService';
 
 class InvoiceController {
   handle(request: Request, response: Response): Response {

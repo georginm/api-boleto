@@ -1,6 +1,6 @@
-import { isNumeric } from 'modules/invoices/helpers/InvoiceHelpers';
-import { BadRequestError } from 'shared/errors/BadRequestError';
 import { inject, injectable } from 'tsyringe';
+
+import { BadRequestError } from '@shared/errors/BadRequestError';
 
 import { IInvoiceDTO } from '../dto/IInvoiceDTO';
 import { IConcessionaireUseCase } from '../useCases/concessionaireInvoiceUseCase/IConcessionaireUseCase';
@@ -17,9 +17,6 @@ class InvoiceService {
   ) {}
 
   execute(digitableLine: string): IInvoiceDTO {
-    if (!isNumeric(digitableLine))
-      throw new BadRequestError('O código digitado só deve conter letras');
-
     if (digitableLine.length === 47) {
       return this.titleUseCases.handleTitleInvoice(digitableLine);
     }

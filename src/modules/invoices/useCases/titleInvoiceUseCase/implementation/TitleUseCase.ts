@@ -1,6 +1,6 @@
-import { IInvoiceDTO } from 'modules/invoices/dto/IInvoiceDTO';
-import { moduleOf10, moduleOf11 } from 'modules/invoices/helpers/InvoiceHelpers';
-import { BadRequestError } from 'shared/errors/BadRequestError';
+import { IInvoiceDTO } from '@modules/invoices/dto/IInvoiceDTO';
+import { isNumeric, moduleOf10, moduleOf11 } from '@modules/invoices/helpers/InvoiceHelpers';
+import { BadRequestError } from '@shared/errors/BadRequestError';
 
 import {
   IFifthField,
@@ -14,11 +14,14 @@ import { ITitleUseCase } from '../ITitleUseCase';
 
 class TitleUseCase implements ITitleUseCase {
   handleTitleInvoice(digitableLine: string): IInvoiceDTO {
+    if (!isNumeric(digitableLine))
+      throw new BadRequestError('O código digitado só deve conter números');
+
     const { firstField, secondField, thirdField, fourthField, fifthField } =
       this.breakFields(digitableLine);
 
     if (fourthField.barCodeVD === '0') {
-      throw new BadRequestError('teste');
+      throw new BadRequestError('O digito de verificação nao pode ser zero');
     }
 
     // if (firstField.if !== '001') {
@@ -29,8 +32,6 @@ class TitleUseCase implements ITitleUseCase {
     //   throw new BadRequestError('Código da moeda inválido');
     // }
 
-    this.barCodeVerificationDigit(digitableLine);
-
     this.verificationDigit(
       firstField.if + firstField.currencyCode + firstField.freeField20x24,
       firstField.firstVD
@@ -38,6 +39,8 @@ class TitleUseCase implements ITitleUseCase {
 
     this.verificationDigit(secondField.freeField25x34, secondField.secondVD);
     this.verificationDigit(thirdField.freeField35x44, thirdField.thirdVD);
+
+    this.barCodeVerificationDigit(digitableLine);
 
     const expirationDate = this.getExpirationDate(fifthField.expirationFactor);
     const barCode = this.constructBarCode(digitableLine);
@@ -94,7 +97,7 @@ class TitleUseCase implements ITitleUseCase {
     const module = moduleOf11(barCode);
 
     if (module !== parseInt(vd[0], 10)) {
-      throw new BadRequestError('Falha ao validar o código de barras');
+      throw new BadRequestError('Falha ao validar o DV do código de barras');
     }
   }
 
@@ -107,21 +110,21 @@ class TitleUseCase implements ITitleUseCase {
     }
   }
 
-  private moduleOf10OurNumber(field: string): string {
-    const digits = field.split('').reverse();
-    const multipliers = [2, 3, 4, 5, 6, 7, 8, 9];
+  // private moduleOf10OurNumber(field: string): string {
+  //   const digits = field.split('').reverse();
+  //   const multipliers = [2, 3, 4, 5, 6, 7, 8, 9];
 
-    const multiplyAndSum = digits.reduce((sum, element, index) => {
-      const multiplier = multipliers[index % multipliers.length];
-      return sum + parseInt(element, 10) * multiplier;
-    }, 0);
+  //   const multiplyAndSum = digits.reduce((sum, element, index) => {
+  //     const multiplier = multipliers[index % multipliers.length];
+  //     return sum + parseInt(element, 10) * multiplier;
+  //   }, 0);
 
-    const rest = multiplyAndSum % 11;
+  //   const rest = multiplyAndSum % 11;
 
-    if (rest === 10) return 'X';
+  //   if (rest === 10) return 'X';
 
-    return `${rest}`;
-  }
+  //   return `${rest}`;
+  // }
 
   private constructBarCode(digitableLine: string): string {
     const { fifthField, firstField, fourthField, secondField, thirdField } =

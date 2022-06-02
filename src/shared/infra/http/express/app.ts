@@ -1,7 +1,8 @@
 import express from 'express';
 import 'express-async-errors';
-import '../../../containers';
-import { invoice } from 'modules/invoices/infra/express/routes/invoices.routes';
+
+import { invoice } from '@modules/invoices/infra/express/routes/invoices.routes';
+import '@shared/containers';
 
 import handleErrors from './middleware/handleErrors';
 
